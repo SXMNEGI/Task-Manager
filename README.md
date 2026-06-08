@@ -1,87 +1,88 @@
 # Personal Task Manager
 
-## Project Title & Brief Description
+## What this is
 
-**Exercise 1 — Personal Task Manager**
+I chose Exercise 1 — the personal task manager. It's a full-stack app with a Node.js/Express backend and a React frontend. You can add tasks with a title, description, and due date, mark them complete, edit them inline, delete them, filter by status, and search by title. Tasks are saved to a JSON file so they survive server restarts.
 
-A full-stack task manager built with Node.js/Express and React. Covers all required functionality — create, read, update, delete, toggle, filter, search, overdue highlighting, and task counts — plus one bonus feature: **task priority** (low / medium / high) with colour-coded left-border accents. Tasks persist across server restarts via a JSON file. The app seeds itself with sample tasks on first run so reviewers see a working UI immediately.
+I went a bit beyond the brief in a few places. I added task priority (low / medium / high) because it felt like an obvious gap, and I built a live analytics dashboard on the right side of the screen that shows your completion progress, a priority breakdown, a due-date horizon, and a 28-day activity grid — all computed from the task list in real time, no extra API calls. There's also a dark/light theme toggle that remembers your preference.
 
-See [`DECISIONS.md`](./DECISIONS.md) for the reasoning behind key architectural choices.
-
----
-
-## Live Demo Links
-
-> After deployment, paste links here.
-> - **Frontend:** `https://your-app.netlify.app`
-> - **Backend API:** `https://your-api.onrender.com`
+If you want to understand why I made certain technical decisions — like why `app.js` and `index.js` are separate, or why I used `useCallback` — I wrote all of that up in [`DECISIONS.md`](./DECISIONS.md).
 
 ---
 
-## Tech Stack
+## Live Demo
 
-| Layer | Choice | Why |
+- **Frontend:** `https://your-app.netlify.app`
+- **Backend:** `https://your-api.onrender.com`
+
+> Note: the backend runs on Render's free tier, which spins down after 15 minutes of inactivity. First load after a period of inactivity may take 20–30 seconds to wake up.
+
+---
+
+## Tech stack
+
+| | Choice | Why I picked it |
 |---|---|---|
-| Backend | Node.js + Express | Minimal setup, great for REST APIs, widely understood |
-| IDs | `uuid` v4 | Collision-free without a database sequence |
-| Persistence | JSON file (`fs` module) | No DB setup; isolated in `store.js` so swapping it out is one file |
-| Frontend | React (Create React App) | Component model maps cleanly to a task list |
-| Styling | Plain CSS + CSS variables | Zero build complexity; easy for a reviewer to read |
-| HTTP | `fetch` (browser built-in) | No extra library needed |
-| Tests | Jest + Supertest | Standard Node testing pair; Supertest lets you test routes without starting the server |
+| Backend | Node.js + Express | Straightforward to set up, easy to read, does exactly what's needed |
+| IDs | `uuid` v4 | No database sequence needed — just generates a unique string |
+| Storage | JSON file via `fs` | The brief said a JSON file was fine. All file access is in one place (`store.js`) so swapping to a real DB later is a one-file change |
+| Frontend | React (Create React App) | Hooks and components map cleanly onto a task list UI |
+| Styling | Plain CSS + CSS variables | No build tooling complexity, easy to read, themes work with a single attribute swap on `<html>` |
+| HTTP | browser `fetch` | No extra library needed |
+| Tests | Jest + Supertest | Industry standard for Node — Supertest lets you hit routes without starting a real server |
 
 ---
 
-## How to Run Locally
+## Running it locally
 
-**Prerequisite:** Node.js v16+. Nothing else needed.
+You just need Node.js (v16 or above). Nothing else.
 
 ```bash
-# 1. Clone
+# clone the repo
 git clone https://github.com/YOUR_USERNAME/task-manager.git
 cd task-manager
 
-# 2. Backend (Terminal 1)
+# terminal 1 — start the backend
 cd server
 npm install
-npm run dev        # → http://localhost:5000
+npm run dev
+# running on http://localhost:5000
 
-# 3. Frontend (Terminal 2)
+# terminal 2 — start the frontend
 cd client
 npm install
-npm start          # → http://localhost:3000 (opens automatically)
+npm start
+# opens http://localhost:3000 automatically
 ```
 
-The React dev server proxies `/api/*` to `localhost:5000` via `"proxy"` in `client/package.json` — no CORS configuration needed during development.
+The first time you start the backend it seeds 5 sample tasks so you see a working UI straight away rather than an empty list.
 
-**Run backend tests:**
+The React dev server proxies `/api/*` requests to port 5000 via the `"proxy"` field in `client/package.json`, so there are no CORS issues in development.
+
+**To run the tests:**
 ```bash
 cd server
 npm test
+# 11 tests, all should be green
 ```
 
 ---
 
-## API Documentation
+## API
 
-Base URL (local): `http://localhost:5000/api`
+Base URL: `http://localhost:5000/api`
 
-### `GET /tasks`
-Returns all tasks, newest first.
+### GET /tasks
+Returns all tasks, newest first. Pass `?search=keyword` to filter by title.
 
-| Param | Type | Description |
-|---|---|---|
-| `search` | query string (optional) | Filter by title, case-insensitive |
-
-**Response 200:**
 ```json
 [
   {
-    "id": "uuid",
-    "title": "Buy groceries",
-    "description": "Milk, eggs",
+    "id": "uuid-string",
+    "title": "Review pull request",
+    "description": "Check edge cases for token expiry",
     "dueDate": "2025-07-01",
-    "priority": "medium",
+    "priority": "high",
     "completed": false,
     "createdAt": "2025-06-10T10:00:00.000Z",
     "updatedAt": "2025-06-10T10:00:00.000Z"
@@ -89,103 +90,95 @@ Returns all tasks, newest first.
 ]
 ```
 
----
-
-### `POST /tasks`
-Creates a new task.
+### POST /tasks
+Creates a task. `title` is required, everything else is optional.
 
 ```json
-// Request body
-{ "title": "string (required)", "description": "string", "dueDate": "YYYY-MM-DD", "priority": "low|medium|high" }
-
-// Response 201 — the created task object
-// Response 400 — { "error": "Title is required" }
-```
-
----
-
-### `PUT /tasks/:id`
-Updates any combination of fields. Only sent fields are changed.
-
-```json
-// Request body (all optional)
+// request
 { "title": "string", "description": "string", "dueDate": "YYYY-MM-DD", "priority": "low|medium|high" }
 
-// Response 200 — the updated task object
-// Response 404 — { "error": "Task not found" }
+// 201 — returns the created task
+// 400 — { "error": "Title is required" }
+```
+
+### PUT /tasks/:id
+Updates a task. Only the fields you send get changed.
+
+```json
+// request — all fields optional
+{ "title": "string", "description": "string", "dueDate": "YYYY-MM-DD", "priority": "low|medium|high" }
+
+// 200 — returns the updated task
+// 404 — { "error": "Task not found" }
+```
+
+### PATCH /tasks/:id/toggle
+Flips `completed` between true and false. No request body needed.
+
+```
+// 200 — returns the updated task
+// 404 — { "error": "Task not found" }
+```
+
+### DELETE /tasks/:id
+Deletes a task permanently.
+
+```
+// 200 — { "message": "Task deleted successfully" }
+// 404 — { "error": "Task not found" }
 ```
 
 ---
 
-### `PATCH /tasks/:id/toggle`
-Flips `completed` between `true` and `false`. No request body.
-
-```
-// Response 200 — the updated task object
-// Response 404 — { "error": "Task not found" }
-```
-
----
-
-### `DELETE /tasks/:id`
-Permanently deletes a task.
-
-```
-// Response 200 — { "message": "Task deleted successfully" }
-// Response 404 — { "error": "Task not found" }
-```
-
----
-
-## Project Structure
+## Project structure
 
 ```
 task-manager/
-├── DECISIONS.md               ← Why things are built the way they are
+├── DECISIONS.md               ← why I made the architectural choices I did
 │
 ├── server/
-│   ├── app.js                 ← Express app (separate from server start for testability)
-│   ├── index.js               ← Starts the server; runs seed on first launch
+│   ├── app.js                 ← Express app — kept separate from index.js so tests can import it without starting a server
+│   ├── index.js               ← starts the server and runs the seed on first launch
 │   ├── routes/
-│   │   └── tasks.js           ← All 5 API route handlers
+│   │   └── tasks.js           ← all five route handlers
 │   ├── data/
-│   │   ├── store.js           ← readTasks() / writeTasks() — the only place that touches the file
-│   │   └── seed.js            ← Populates sample tasks on first run
+│   │   ├── store.js           ← the only file that touches tasks.json
+│   │   └── seed.js            ← creates sample tasks on first run if the file doesn't exist
 │   └── tests/
-│       └── tasks.test.js      ← 11 integration tests (Jest + Supertest)
+│       └── tasks.test.js      ← 11 integration tests covering every endpoint
 │
 └── client/
     └── src/
-        ├── App.js             ← Root component; layout + filter state
+        ├── App.js             ← root component; wires together the layout, theme, and filter state
         ├── components/
-        │   ├── Header.js      ← Sticky header with live task counts
-        │   ├── TaskForm.js    ← Add form; expandable for description, due date, priority
-        │   ├── FilterBar.js   ← All / Active / Completed toggle
-        │   ├── TaskList.js    ← Renders list, loading state, empty state
-        │   └── TaskItem.js    ← Single card; inline view/edit mode switch
+        │   ├── TaskForm.js    ← controlled form; expands to show description, due date, priority
+        │   ├── FilterBar.js   ← All / Active / Completed filter buttons
+        │   ├── TaskList.js    ← handles loading state, empty state, and the task list
+        │   ├── TaskItem.js    ← single task row with inline edit mode
+        │   ├── Dashboard.js   ← live right panel: completion ring, priority bars,
+        │   │                     due-date horizon, 28-day activity grid, smart insights
+        │   └── Dashboard.css
         ├── hooks/
-        │   └── useTasks.js    ← All task state and API calls; keeps components clean
+        │   └── useTasks.js    ← custom hook; all task state and API calls live here so components stay clean
         └── utils/
-            ├── api.js         ← All fetch() calls in one place
+            ├── api.js         ← every fetch() call in one place
             └── helpers.js     ← isOverdue(), formatDate()
 ```
 
 ---
 
-## Bonus Features Added
+## What I'd do next
 
-- **Task priority** (low / medium / high) — colour-coded left-border accent on each card, editable in the form and inline edit. Defaults to "medium" if not set, so it's fully backwards-compatible.
-- **Seed data** — on first run the app populates 5 sample tasks (including some overdue ones) so the UI is immediately demonstrable.
-- **11 integration tests** — covers create, read, search, toggle, and delete.
-- **`DECISIONS.md`** — documents the reasoning behind architectural choices.
+A few things I left out intentionally given the time, and would pick up next:
 
----
+**Authentication** — right now everyone shares one task list. Adding JWT-based login would give each user their own data. I'd add a `users` table and attach a `userId` foreign key to tasks.
 
-## Next Steps
+**SQLite instead of JSON** — the JSON file works fine for a single user, but it reads and writes the whole file on every request. SQLite would be a straightforward swap — `store.js` is the only file that touches storage, so the rest of the codebase wouldn't change.
 
-- **Authentication** — currently one global task list. JWT-based login would give each user their own data.
-- **SQLite** — replace the JSON file for better concurrency. `store.js` is already the only file that touches persistence, so the swap would be isolated.
-- **Drag-and-drop reorder** — `react-beautiful-dnd` or the HTML5 Drag and Drop API.
-- **React Testing Library tests** — the backend is tested; I'd add component tests for `TaskItem`'s view/edit mode switching next.
-- **Error boundary** — a top-level `<ErrorBoundary>` to catch unexpected render errors gracefully.
-- **Pagination** — loading all tasks at once is fine for personal use; beyond ~500 tasks I'd add cursor-based pagination to `GET /tasks`.
+**Task detail panel** — clicking a task could open a full detail view in the right panel, pushing the dashboard aside. The split layout is set up for exactly this kind of expansion.
+
+**Component tests** — the backend routes are tested but the frontend isn't. I'd use React Testing Library to test `TaskItem`'s view/edit mode switching and the `Dashboard` calculations next.
+
+**Drag to reorder** — `react-beautiful-dnd` would let users prioritise tasks manually, which feels like the most-wanted missing feature.
+
+**Pagination** — loading all tasks at once is fine for personal use. Past a few hundred tasks I'd add cursor-based pagination to `GET /tasks` and virtualise the list rendering.
