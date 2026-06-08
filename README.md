@@ -12,8 +12,8 @@ If you want to understand why I made certain technical decisions — like why `a
 
 ## Live Demo
 
-- **Frontend:** `https://your-app.netlify.app`
-- **Backend:** `https://your-api.onrender.com`
+- **Frontend:** https://kaleidoscopic-custard-eabc66.netlify.app
+- **Backend:** https://task-manager-p06g.onrender.com
 
 > Note: the backend runs on Render's free tier, which spins down after 15 minutes of inactivity. First load after a period of inactivity may take 20–30 seconds to wake up.
 
