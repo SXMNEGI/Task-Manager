@@ -12,7 +12,12 @@ const taskRoutes = require("./routes/tasks");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://task-manager-p06g.onrender.com"
+  ]
+}));
 app.use(express.json());
 app.use("/api/tasks", taskRoutes);
 
