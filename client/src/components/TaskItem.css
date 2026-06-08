@@ -1,0 +1,258 @@
+/* client/src/components/TaskItem.css */
+
+/* Each task is a full-width row */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  cursor: default;
+  position: relative;
+  background: var(--bg);
+  animation: rowIn 0.15s ease;
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.task-item:hover { background: var(--bg-2); }
+.task-item:hover .task-actions { opacity: 1; }
+
+/* priority stripe — left edge */
+.task-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+}
+
+.task-item.priority-high::before   { background: var(--p-high,   #666); }
+.task-item.priority-medium::before { background: var(--p-medium, #444); }
+.task-item.priority-low::before    { background: var(--p-low,    #2a2a2a); }
+
+[data-theme="dark"] .task-item.priority-high::before   { --p-high:   #888; }
+[data-theme="dark"] .task-item.priority-medium::before { --p-medium: #555; }
+[data-theme="dark"] .task-item.priority-low::before    { --p-low:    #333; }
+
+[data-theme="light"] .task-item.priority-high::before   { --p-high:   #b05a20; }
+[data-theme="light"] .task-item.priority-medium::before { --p-medium: #a08030; }
+[data-theme="light"] .task-item.priority-low::before    { --p-low:    #508050; }
+
+.task-item.completed { opacity: 0.4; }
+.task-item.overdue { background: var(--orange); }
+.task-item.overdue:hover { background: var(--orange); filter: brightness(1.05); }
+
+/* ── Checkbox ── */
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1.5px solid var(--border-2);
+  background: transparent;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.checkbox:hover { border-color: var(--text-2); }
+.checkbox.checked { background: var(--accent); border-color: var(--accent); }
+.checkmark { color: var(--accent-text); font-size: 9px; font-weight: 700; }
+
+/* ── Content ── */
+.task-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.task-title {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+  color: var(--text-3);
+}
+
+.task-desc-inline {
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 2;
+}
+
+/* ── Right meta ── */
+.task-meta-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.due-badge {
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.due-badge.overdue-badge { color: var(--orange-text); font-weight: 500; }
+
+.priority-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .priority-high   .priority-dot { background: #777; }
+[data-theme="dark"] .priority-medium .priority-dot { background: #555; }
+[data-theme="dark"] .priority-low    .priority-dot { background: #444; }
+[data-theme="light"] .task-item.priority-high   .priority-dot { background: #b05a20; }
+[data-theme="light"] .task-item.priority-medium .priority-dot { background: #a08030; }
+[data-theme="light"] .task-item.priority-low    .priority-dot { background: #508050; }
+
+.task-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 13px;
+  padding: 4px 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+.action-btn:hover { background: var(--bg-3); color: var(--text-2); }
+
+/* always show on mobile */
+@media (max-width: 480px) { .task-actions { opacity: 1; } }
+
+/* ── Expanded detail (right panel) ── */
+.task-detail-panel {
+  flex: 1;
+  padding: 40px 48px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detail-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  gap: 10px;
+}
+
+.detail-empty-icon { font-size: 32px; opacity: 0.2; }
+.detail-empty-text { font-size: 13px; color: var(--text-3); }
+
+/* ── Inline edit row ── */
+.task-item.editing {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 16px 24px;
+  background: var(--bg-3);
+  gap: 10px;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.edit-row-main {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-input {
+  background: var(--bg-2);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: 12px;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  width: 100%;
+}
+.edit-input:focus { border-color: var(--text-3); }
+.edit-input::placeholder { color: var(--text-3); }
+
+.edit-bottom-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.edit-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-field .field-label { width: auto; }
+
+.edit-error { font-size: 11px; color: var(--red-text); }
+
+.edit-buttons { display: flex; gap: 6px; }
+
+.btn-save {
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-save:hover:not(:disabled) { opacity: 0.85; }
+.btn-save:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-cancel {
+  background: var(--bg-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn-cancel:hover { border-color: var(--border-2); color: var(--text); }
