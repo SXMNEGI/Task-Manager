@@ -16,6 +16,7 @@ app.use(cors({
   origin: [
     "http://localhost:3000",
     "https://task-manager-p06g.onrender.com"
+    "https://kaleidoscopic-custard-eabc66.netlify.app"
   ]
 }));
 app.use(express.json());
