@@ -213,8 +213,7 @@ function DueHorizon({ horizon }) {
 
 function ActivityGrid({ activity, maxActivity }) {
   // 4 rows × 7 cols — last 28 days
-  const rows = 4;
-  const cols = 7;
+
 
   return (
     <div className="dash-card activity-card">
