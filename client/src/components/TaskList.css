@@ -1,0 +1,36 @@
+/* client/src/components/TaskList.css */
+
+.task-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.task-list {
+  list-style: none;
+}
+
+/* ── States ── */
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  color: var(--text-3);
+  gap: 8px;
+}
+
+.empty-icon { font-size: 24px; opacity: 0.4; }
+.empty-title { font-size: 13px; color: var(--text-2); }
+.empty-sub { font-size: 12px; color: var(--text-3); }
+
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border-2);
+  border-top-color: var(--text-2);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
